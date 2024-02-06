@@ -1,12 +1,9 @@
 import React from "react";
-import Trading from "../../components/trading";
-import Dashboard from "../../components/dashboard";
 
 const home = () => {
   return (
     <div>
-      <Trading />
-      <Dashboard />
+      <h1>Home</h1>
     </div>
   );
 };
