@@ -1,23 +1,108 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-gap: 10px;
+background-color: black;
+height: 100vh;
+width: 100vw;
+`;
+
+export const Container2 = styled.div`
+display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: black;
+
+`;
+
+export const Container3 = styled.div`
+display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: black;
+
+`;
+
+export const Box = styled.div`
+  flex: 1 1 20%;
+  background-color: teal;
+  border: 1px solid white;
   padding: 20px;
   box-sizing: border-box;
 `;
 
-export const Box = styled.div`
-  background-color: #f5f5f5;
+export const Box1 = styled.div`
+  position: fixed;
+  top: 56%;
+  left: 1%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 200px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: red;
+  background-color: teal;
+`;
+
+export const Box2 = styled.div`
+  position: fixed;
+  top: 44%;
+  left: 1%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 200px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: red;
+  background-color: teal;
+`;
+
+export const Box3 = styled.div`
+  background-color: teal;
+  border: 1px solid white;
   padding: 20px;
   box-sizing: border-box;
-  text-align: center;
+  position: fixed;
+  top: 75%;
+  left: 1%;
+  width: 70vw;
+  overflow: auto;
+  max-height: 220px;
+`;
+export const Box4 = styled.div`
+  position: fixed;
+  top: 86%;
+  left: 80%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 200px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: red;
+  background-color: teal;
 `;
 
 export const Button = styled.button`
@@ -52,7 +137,7 @@ export const TableData = styled.td`
 
 export const TweetLink = styled.a`
   text-decoration: none;
-  color: #4caf50;
+  color: black;
   &:hover {
     text-decoration: underline;
   }
