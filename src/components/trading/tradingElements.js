@@ -83,6 +83,7 @@ export const TableRow = styled.tr`
 export const TableHeader = styled.th`
   text-align: left;
   padding: 12px;
+  border: 2px solid red;
 `;
 
 export const TableData = styled.td`

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Container3,
@@ -10,53 +10,47 @@ import {
   TableHeader,
   TableData,
 } from "./tradingElements.js";
+import axios from 'axios';
+import {atom, useAtom, useAtomValue } from 'jotai';
+
+const API_URL = "http://localhost:8080/";
+const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
+
+const tokenRankAtom = atom([]);
 
 
 const OriginalTable = ({ onDataClick }) => {
-  const handleSort = (key) => {
-    const sortedData = [...data].sort((b, a) => a[key] - b[key]);
+
+  const tokenRankData = useAtomValue(tokenRankAtom);
+  
+  const handleSort = () => {
+    const sortedData = [...data].sort((a, b) => b.tokenWeight - a.tokenWeight  );
     setData(sortedData);
   };
 
-    const handleSortTime = (key) => {
-      const sortedData = [...data].sort((a, b) => a[key] - b[key]);
-      setData(sortedData);
+  const handleTime = () => {
+    const sortedData = [...data].sort((a, b) => a.earliestTimeDetection - b.earliestTimeDetection);
+    setData(sortedData);
   };
-  const [data, setData] = useState([
-    { acc: 1, token: 'GME', time: 130, weight: '52' },
-    { acc: 1, token: 'BTC', time: 320, weight: '5' },
-    { acc: 1, token: 'LTC', time: 310, weight: '25' },
-    { acc: 1, token: 'ETH', time: 330, weight: '5' },
-    { acc: 1, token: 'SOL', time: 340, weight: '35' },
-    { acc: 1, token: 'SFM', time: 10, weight: '5' },
-    { acc: 1, token: 'DOGE', time: 20, weight: '5' },
-    { acc: 1, token: 'WEN', time: 10, weight: '45' },
-    { acc: 1, token: 'DEGEN', time: 30, weight: '5' },
-    { acc: 1, token: 'MEME', time: 30, weight: '65' },
-    { acc: 1, token: 'LORD', time: 30, weight: '5' },
-    { acc: 1, token: 'SWAG', time: 30, weight: '5' },
-    { acc: 1, token: 'PEPE', time: 30, weight: '15' },
-    { acc: 1, token: 'SHIB', time: 30, weight: '5' }
+  const [data, setData] = useState(tokenRankData);
 
-  ]);
     return(
     <Table>
     <thead>
       <TableRow>
         <TableHeader>Account</TableHeader>
         <TableHeader>Token</TableHeader>
-        <TableHeader onClick={() => handleSortTime('time')}>Time</TableHeader>
-        <TableHeader onClick={() => handleSort('weight')}>Weight</TableHeader>
+        <TableHeader onClick={() => handleTime()}>Time</TableHeader>
+        <TableHeader onClick={() => handleSort()}>Weight</TableHeader>
       </TableRow>
     </thead>
     <tbody>
       {data.map(item => (
-        <TableRow key={item.acc} onClick={() => onDataClick(item)}>
-        
-        <TableData>{item.acc}</TableData>
-        <TableData>{item.token}</TableData>
-        <TableData>{item.time}</TableData>
-        <TableData>{item.weight}</TableData>
+        <TableRow key={item.tokenName} onClick={() => onDataClick(item)}>
+        <TableData>{item.totalMentioned}</TableData>
+        <TableData>${item.tokenName}</TableData>
+        <TableData>{item.earliestTimeDetection} hrs ago</TableData>
+        <TableData>{item.tokenWeight}</TableData>
 
         </TableRow>
       ))}
@@ -73,6 +67,13 @@ const NewTable = ({ data, onClose }) => {
     { CA: 1, Age: '1hr', Volume: 30, Liquidity: '5', MCap: '500' }
 
   ]);
+
+  const convertTimeMstoAge = (timestamp) => {
+      let convertedAge = timestamp / (1000 * 60);
+      return convertedAge
+
+  }
+
     return(
       <div> 
         <button onClick={onClose}>X</button>
@@ -80,21 +81,23 @@ const NewTable = ({ data, onClose }) => {
     <thead>
       <TableRow>
         <TableHeader>CA</TableHeader>
-        <TableHeader>Age</TableHeader>
+        {/* <TableHeader>Age</TableHeader> */}
         <TableHeader>Volume</TableHeader>
         <TableHeader>Liquidity</TableHeader>
-        <TableHeader>MCap</TableHeader>
+        <TableHeader>Age</TableHeader>
       </TableRow>
     </thead>
     <tbody>
-      {data1.map(item => (
+      {data.map(item => (
         <TableRow key={item.acc}>
         
-        <TableData>{item.CA}</TableData>
-        <TableData>{item.Age}</TableData>
-        <TableData>{item.Volume}</TableData>
-        <TableData>{item.Liquidity}</TableData>
-        <TableData>{item.MCap}</TableData>
+        <TableData><a href={item.url} target="_blank" rel="noopener noreferrer">{item.pairAddress}</a></TableData>
+        <TableData>{item.volume.h24}</TableData>
+        <TableData>{item.liquidity.usd}</TableData>
+        <TableData>{convertTimeMstoAge(item.pairCreatedAt) > 60 
+             ? convertTimeMstoAge(item.pairCreatedAt) 
+             :
+        }</TableData>
 
         </TableRow>
       ))}
@@ -112,23 +115,71 @@ const Trading = () => {
     // Perform any action you want when the box is clicked
     console.log('Dashboard clicked');
   };
+  const [tokenRank, setTokenRank] = useAtom(tokenRankAtom);
+  const [loading, setLoading] = useState(true);
 
-  const handleDataClick = (rowData) => {
+  const requestTokenRanking = async () => {
+      const tokenData = await axios.get(API_URL + "tokenranking");
+      const processedTokenData = processArray(tokenData.data);
+      console.log(processedTokenData)
+      setTokenRank(processedTokenData);
+      setLoading(false);
+  }
+
+  const processArray = async (array) => {
+    const currentTime = new Date().getTime();
+
+    for(let i = 0; i < array.length; i++) {
+      const tweetTimeDate = new Date(array[i].earliestTimeDetection).getTime();
+      const timeDifferenceHours = ((currentTime - tweetTimeDate) / (1000 * 60 * 60)).toFixed(2);
+      array[i].earliestTimeDetection = timeDifferenceHours; 
+
+      array[i].tokenName = array[i].tokenName.toUpperCase();
+    }
+
+    return array;
+  }
+
+  const requestTokenDEXScreener = async (token) => {
+      const tokenData = await axios.get(DEX_SCREENER_URL + token);
+      let tokenPairData = tokenData.data.pairs;
+      tokenPairData = tokenPairData.filter((item) => item.chainId == "solana");
+
+      const currentTime = new Date().getTime();
+
+      
+
+      for(let i = 0; i < tokenPairData.length; i++) {
+        console.log('before: ', tokenPairData[i].pairCreatedAt)
+         const timeDifference = (currentTime - tokenPairData[i].pairCreatedAt);
+         tokenPairData[i].pairCreatedAt = timeDifference;   
+         console.log('after: ', tokenPairData[i].pairCreatedAt)
+      }
+
+ 
+      return tokenPairData
+  }
+
+  const handleDataClick = async (rowData) => {
     // Generate new table data based on the clicked row
     const newTableData = [
       { column1: rowData.id, column2: rowData.name, column3: rowData.age, column4: 'Data 4', column5: 'Data 5' },
       // Add more rows as needed
     ];
-    setNewTableData(newTableData);
+    const tokenData = await requestTokenDEXScreener(rowData.tokenName);
+    setNewTableData(tokenData);
     setShowOriginalTable(false);
   };
 
   const handleCloseNewTable = () => {
     setShowOriginalTable(true);
   };
+
+
+  useEffect(() => {
+    requestTokenRanking();
+  }, [])
     
-
-
 
   return (
     <Container>
@@ -144,11 +195,14 @@ const Trading = () => {
       </a>
       <Container3>
       <Box3>
-      {showOriginalTable ? (
-        <OriginalTable onDataClick={handleDataClick} />
-      ) : (
-        <NewTable data={newTableData} onClose={handleCloseNewTable} />
-      )}
+        {loading 
+           ?  <div>Loading...</div>
+           :  showOriginalTable  ? (
+            <OriginalTable onDataClick={handleDataClick}  />
+          ) : (
+            <NewTable data={newTableData} onClose={handleCloseNewTable} />
+          )
+        }
       </Box3>
       </Container3>
     </Container>
