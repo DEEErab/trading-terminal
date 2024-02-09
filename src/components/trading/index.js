@@ -95,8 +95,8 @@ const NewTable = ({ data, onClose }) => {
         <TableData>{item.volume.h24}</TableData>
         <TableData>{item.liquidity.usd}</TableData>
         <TableData>{convertTimeMstoAge(item.pairCreatedAt) > 60 
-             ? convertTimeMstoAge(item.pairCreatedAt) 
-             :
+             ? (convertTimeMstoAge(item.pairCreatedAt) / 60) + " hrs"
+             : convertTimeMstoAge(item.pairCreatedAt) + "mins"
         }</TableData>
 
         </TableRow>
