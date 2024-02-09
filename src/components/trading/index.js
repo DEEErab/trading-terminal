@@ -60,19 +60,27 @@ const OriginalTable = ({ onDataClick }) => {
 };
 
 const NewTable = ({ data, onClose }) => {
-  const [data1, setData] = useState([
-    { CA: 1, Age: '5min', Volume: 30, Liquidity: '5', MCap: '500' },
-    { CA: 1, Age: '7min', Volume: 30, Liquidity: '5', MCap: '500' },
-    { CA: 1, Age: '20min', Volume: 30, Liquidity: '5', MCap: '500' },
-    { CA: 1, Age: '1hr', Volume: 30, Liquidity: '5', MCap: '500' }
 
-  ]);
+
+  ;
+
 
   const convertTimeMstoAge = (timestamp) => {
       let convertedAge = timestamp / (1000 * 60);
       return convertedAge
 
-  }
+  };
+
+
+  
+
+    // Function to handle redirection
+    const redirectToPage = (event, pairAddress) => {
+      event.preventDefault(); // Prevent default action of the link
+  
+      // Redirect to a different page with pairAddress as a parameter
+      window.location.href = "dashboard?pairAddress=" + pairAddress;
+    };
 
     return(
       <div> 
@@ -82,20 +90,24 @@ const NewTable = ({ data, onClose }) => {
       <TableRow>
         <TableHeader>CA</TableHeader>
         {/* <TableHeader>Age</TableHeader> */}
-        <TableHeader>Volume</TableHeader>
-        <TableHeader>Liquidity</TableHeader>
+        <TableHeader >Volume</TableHeader> 
+        <TableHeader >Liquidity</TableHeader> {/*add sorting for this highest to lowest */}
         <TableHeader>Age</TableHeader>
       </TableRow>
     </thead>
+
     <tbody>
       {data.map(item => (
         <TableRow key={item.acc}>
         
-        <TableData><a href={item.url} target="_blank" rel="noopener noreferrer">{item.pairAddress}</a></TableData>
-        <TableData>{item.volume.h24}</TableData>
-        <TableData>{item.liquidity.usd}</TableData>
+        <TableData>                <a href="#" onClick={(event) => redirectToPage(event, item.pairAddress)}>
+                  {item.pairAddress}
+                </a></TableData>
+
+        <TableData>${item.volume.h24.toLocaleString()}</TableData>
+        <TableData>${item.liquidity.usd.toLocaleString()}</TableData>
         <TableData>{convertTimeMstoAge(item.pairCreatedAt) > 60 
-             ? (convertTimeMstoAge(item.pairCreatedAt) / 60) + " hrs"
+             ? (convertTimeMstoAge(item.pairCreatedAt) / 60).toFixed(2) + " hrs"
              : convertTimeMstoAge(item.pairCreatedAt) + "mins"
         }</TableData>
 
@@ -105,6 +117,7 @@ const NewTable = ({ data, onClose }) => {
   </Table>
   
   </div>
+  
     )
 };
 

@@ -30,7 +30,7 @@ display: flex;
 
 export const Box = styled.div`
   flex: 1 1 20%;
-  background-color: teal;
+  background-color: #acacac;
   border: 1px solid white;
   padding: 20px;
   box-sizing: border-box;
@@ -51,8 +51,8 @@ export const Box1 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: teal;
+  border-color: white;
+  background-color: #acacac;
 `;
 
 export const Box2 = styled.div`
@@ -70,12 +70,12 @@ export const Box2 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: teal;
+  border-color: white;
+  background-color: #acacac;
 `;
 
 export const Box3 = styled.div`
-  background-color: teal;
+  background-color: #acacac;
   border: 1px solid white;
   padding: 20px;
   box-sizing: border-box;
@@ -101,8 +101,8 @@ export const Box4 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: teal;
+  border-color: white;
+  background-color: #acacac;
 `;
 
 export const Button = styled.button`
@@ -141,4 +141,15 @@ export const TweetLink = styled.a`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+export const Container4 = styled.div`
+  padding: 20px;
+  box-sizing: border-box;
+  position: fixed;
+  left: 12%;
+`;
+
+export const Dexscreener = styled.div`
+
 `;

@@ -3,6 +3,8 @@ import {
   Container,
   Container2,
   Container3,
+  Container4,
+  Dexscreener,
   Box,
   Box1,
   Box2,
@@ -20,6 +22,17 @@ import {
 
 const Dashboard = () => {
 
+  // Get the URL parameters
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+// Get the value of the 'pairAddress' parameter
+const pairAddress = urlParams.get('pairAddress');
+console.log(pairAddress);
+
+const url = `https://dexscreener.com/solana/${pairAddress}`;
+
+
   const handleLinkClick = () => {
     // Perform any action you want when the box is clicked
     console.log('Dashboard clicked');
@@ -36,6 +49,13 @@ const Dashboard = () => {
     { acc: 5, tweet: 'Jane', time: 25 },
     { acc: 6, tweet: 'Doe', time: 35 }
   ];
+  
+
+ 
+
+  
+
+
 
   return (
     <Container>
@@ -49,7 +69,7 @@ const Dashboard = () => {
         <h2>Trading</h2>
       </Box2>
       </a>
-      <Container2>
+      {/* <Container2>
       <Box>
         <h2>PAIR</h2>
         <p>GME/SOL</p>
@@ -66,7 +86,13 @@ const Dashboard = () => {
         <h2>MCap</h2>
         <p>$23m</p>
       </Box>
-      </Container2>
+      </Container2> */}
+      <Container4>
+        <Dexscreener>
+        <iframe src={url} width="1500" height="640" frameborder="0"></iframe>
+        </Dexscreener>
+      </Container4>
+      
       <Container3>
       <Box3>
         <Table>
