@@ -75,11 +75,11 @@ const NewTable = ({ data, onClose }) => {
   
 
     // Function to handle redirection
-    const redirectToPage = (event, pairAddress) => {
+    const redirectToPage = (event, pairAddress, token) => {
       event.preventDefault(); // Prevent default action of the link
   
       // Redirect to a different page with pairAddress as a parameter
-      window.location.href = "dashboard?pairAddress=" + pairAddress;
+      window.location.href = "dashboard?pairAddress=" + pairAddress + `/token=${token}`;
     };
 
     return(
@@ -100,7 +100,7 @@ const NewTable = ({ data, onClose }) => {
       {data.map(item => (
         <TableRow key={item.acc}>
         
-        <TableData>                <a href="#" onClick={(event) => redirectToPage(event, item.pairAddress)}>
+        <TableData>                <a href="#" onClick={(event) => redirectToPage(event, item.pairAddress, item.baseToken.symbol)}>
                   {item.pairAddress}
                 </a></TableData>
 
@@ -169,7 +169,7 @@ const Trading = () => {
          console.log('after: ', tokenPairData[i].pairCreatedAt)
       }
 
- 
+      console.log(tokenPairData)
       return tokenPairData
   }
 

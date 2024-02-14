@@ -18,7 +18,8 @@ import {
   TweetLink,
 } from "./dashboardElements.js";
 
-
+const API_URL = "http://localhost:8080/";
+const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
 
 const Dashboard = () => {
 
@@ -28,9 +29,15 @@ const urlParams = new URLSearchParams(queryString);
 
 // Get the value of the 'pairAddress' parameter
 const pairAddress = urlParams.get('pairAddress');
-console.log(pairAddress);
 
-const url = `https://dexscreener.com/solana/${pairAddress}`;
+
+const [newPairAddress, token] = pairAddress.split("/token=");
+
+console.log("Pair Address:", newPairAddress);
+console.log("Token:", token);
+
+
+const url = `https://dexscreener.com/solana/${newPairAddress}`;
 
 
   const handleLinkClick = () => {
