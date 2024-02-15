@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Container2,
@@ -17,11 +17,14 @@ import {
   TableData,
   TweetLink,
 } from "./dashboardElements.js";
+import axios from "axios";
 
 const API_URL = "http://localhost:8080/";
 const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
 
 const Dashboard = () => {
+
+  const [tweets, setTweets] = useState([]);
 
   // Get the URL parameters
 const queryString = window.location.search;
@@ -45,24 +48,22 @@ const url = `https://dexscreener.com/solana/${newPairAddress}`;
     console.log('Dashboard clicked');
   };
 
-  const data = [
-    { acc: 1, tweet: 'John', time: 30 },
-    { acc: 2, tweet: 'Jane', time: 25 },
-    { acc: 3, tweet: 'Doe', time: 35 },
-    { acc: 4, tweet: 'John', time: 30 },
-    { acc: 5, tweet: 'Jane', time: 25 },
-    { acc: 6, tweet: 'Doe', time: 35 },
-    { acc: 4, tweet: 'John', time: 30 },
-    { acc: 5, tweet: 'Jane', time: 25 },
-    { acc: 6, tweet: 'Doe', time: 35 }
-  ];
+  const getTweetsTokenByData = async (token) => {
+     const tokenL = token.toLowerCase();
+     const tweets = await axios.post(API_URL + "tweetsbytoken", {
+      token: tokenL
+     })
+
+     console.log(tweets.data)
+     setTweets(tweets.data);
+  }
+
+
+  useEffect( () => {
+   getTweetsTokenByData(token);
+
+  }, [token])
   
-
- 
-
-  
-
-
 
   return (
     <Container>
@@ -111,12 +112,12 @@ const url = `https://dexscreener.com/solana/${newPairAddress}`;
             </TableRow>
           </thead>
           <tbody>
-            {data.map(item => (
+            {tweets.map(item => (
               <TableRow key={item.acc}>
               
-              <TableData>{item.acc}</TableData>
-              <TableData>{item.tweet}</TableData>
-              <TableData>{item.time}</TableData>
+              <TableData>{item.tweetWho}</TableData>
+              <TableData>{item.tweetString}</TableData>
+              <TableData>{item.tweetTime}</TableData>
 
               </TableRow>
             ))}
