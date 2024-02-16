@@ -34,13 +34,15 @@ const urlParams = new URLSearchParams(queryString);
 const pairAddress = urlParams.get('pairAddress');
 
 
-const [newPairAddress, token] = pairAddress.split("/token=");
+const [newPairAddress, newToken] = pairAddress.split("/token=");
+const [token, chainId] = newToken.split("/chainId=");
 
 console.log("Pair Address:", newPairAddress);
 console.log("Token:", token);
+console.log("Chain:", chainId);
 
 
-const url = `https://dexscreener.com/solana/${newPairAddress}`;
+const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
 
 
   const handleLinkClick = () => {

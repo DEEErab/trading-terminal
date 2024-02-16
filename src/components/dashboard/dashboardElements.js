@@ -52,7 +52,7 @@ export const Box1 = styled.div`
   box-sizing: border-box;
   border-style: solid;
   border-color: white;
-  background-color: #acacac;
+  background-color: grey;
 `;
 
 export const Box2 = styled.div`

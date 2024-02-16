@@ -34,7 +34,7 @@ export const Box1 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
+  border-color: white;
   background-color: #acacac;
 `;
 
@@ -53,8 +53,8 @@ export const Box2 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: #acacac;
+  border-color: white;
+  background-color: grey;
 `;
 
 export const Box3 = styled.div`

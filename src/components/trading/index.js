@@ -49,7 +49,7 @@ const OriginalTable = ({ onDataClick }) => {
         <TableRow key={item.tokenName} onClick={() => onDataClick(item)}>
         <TableData>{item.totalMentioned}</TableData>
         <TableData>${item.tokenName}</TableData>
-        <TableData>{item.earliestTimeDetection} hrs ago</TableData>
+        <TableData>{item.earliestTimeDetection}/oldest hrs ago</TableData>
         <TableData>{item.tokenWeight}</TableData>
 
         </TableRow>
@@ -75,11 +75,11 @@ const NewTable = ({ data, onClose }) => {
   
 
     // Function to handle redirection
-    const redirectToPage = (event, pairAddress, token) => {
+    const redirectToPage = (event, pairAddress, token, chainId) => {
       event.preventDefault(); // Prevent default action of the link
   
       // Redirect to a different page with pairAddress as a parameter
-      window.location.href = "dashboard?pairAddress=" + pairAddress + `/token=${token}`;
+      window.location.href = "dashboard?pairAddress=" + pairAddress + `/token=${token}` + `/chainId=${chainId}`;
     };
 
     return(
@@ -90,6 +90,7 @@ const NewTable = ({ data, onClose }) => {
       <TableRow>
         <TableHeader>CA</TableHeader>
         {/* <TableHeader>Age</TableHeader> */}
+        <TableHeader>Chain</TableHeader>
         <TableHeader >Volume</TableHeader> 
         <TableHeader >Liquidity</TableHeader> {/*add sorting for this highest to lowest */}
         <TableHeader>Age</TableHeader>
@@ -100,10 +101,10 @@ const NewTable = ({ data, onClose }) => {
       {data.map(item => (
         <TableRow key={item.acc}>
         
-        <TableData>                <a href="#" onClick={(event) => redirectToPage(event, item.pairAddress, item.baseToken.symbol)}>
+        <TableData> <a href="#" onClick={(event) => redirectToPage(event, item.pairAddress, item.baseToken.symbol,item.chainId)}>
                   {item.pairAddress}
                 </a></TableData>
-
+        <TableData>{item.chainId}</TableData>
         <TableData>${item.volume.h24.toLocaleString()}</TableData>
         <TableData>${item.liquidity.usd.toLocaleString()}</TableData>
         <TableData>{convertTimeMstoAge(item.pairCreatedAt) > 60 
@@ -134,6 +135,7 @@ const Trading = () => {
   const requestTokenRanking = async () => {
       const tokenData = await axios.get(API_URL + "tokenranking");
       const processedTokenData = processArray(tokenData.data);
+      
       console.log(processedTokenData)
       setTokenRank(processedTokenData);
       setLoading(false);
@@ -154,10 +156,11 @@ const Trading = () => {
   }
 
   const requestTokenDEXScreener = async (token) => {
-      const tokenData = await axios.get(DEX_SCREENER_URL + token);
+      const tokenData = await axios.get(DEX_SCREENER_URL + token); //sssssssssssssssssssssss
       let tokenPairData = tokenData.data.pairs;
-      tokenPairData = tokenPairData.filter((item) => item.chainId == "solana");
-
+      
+      tokenPairData = tokenPairData.filter((item) => (item.chainId == "solana" || item.chainId == "ethereum") && item.baseToken.symbol === token);
+      
       const currentTime = new Date().getTime();
 
       
@@ -169,7 +172,7 @@ const Trading = () => {
          console.log('after: ', tokenPairData[i].pairCreatedAt)
       }
 
-      console.log(tokenPairData)
+      console.log("data",tokenPairData)
       return tokenPairData
   }
 
