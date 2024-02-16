@@ -159,7 +159,12 @@ const Trading = () => {
       const tokenData = await axios.get(DEX_SCREENER_URL + token); //sssssssssssssssssssssss
       let tokenPairData = tokenData.data.pairs;
       
-      tokenPairData = tokenPairData.filter((item) => (item.chainId == "solana" || item.chainId == "ethereum") && item.baseToken.symbol === token);
+      //tokenPairData = tokenPairData.filter((item) => (item.chainId == "solana" || item.chainId == "ethereum") && item.baseToken.symbol === token);
+      tokenPairData = tokenPairData.filter((item) => 
+      ((item.chainId == "solana" || item.chainId == "ethereum") && 
+      (item.baseToken.symbol === token || item.baseToken.symbol.startsWith("$" + token))));
+    
+    
       
       const currentTime = new Date().getTime();
 

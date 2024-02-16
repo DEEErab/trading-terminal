@@ -34,7 +34,8 @@ const urlParams = new URLSearchParams(queryString);
 const pairAddress = urlParams.get('pairAddress');
 
 
-const [newPairAddress, newToken] = pairAddress.split("/token=");
+const [newPairAddress, newToken] = pairAddress.split(/\/token=(?=\$?)/);
+
 const [token, chainId] = newToken.split("/chainId=");
 
 console.log("Pair Address:", newPairAddress);
@@ -43,6 +44,8 @@ console.log("Chain:", chainId);
 
 
 const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
+
+
 
 
   const handleLinkClick = () => {
@@ -114,16 +117,19 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
             </TableRow>
           </thead>
           <tbody>
-            {tweets.map(item => (
-              <TableRow key={item.acc}>
-              
-              <TableData>{item.tweetWho}</TableData>
-              <TableData>{item.tweetString}</TableData>
-              <TableData>{item.tweetTime}</TableData>
-
-              </TableRow>
-            ))}
-          </tbody>
+  {tweets.map(item => {
+    const tweetTime = new Date(item.tweetTime);
+    const diffInMilliseconds = Date.now() - tweetTime.getTime();
+    const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
+    return (
+      <TableRow key={item.acc}>
+        <TableData>{item.tweetWho}</TableData>
+        <TableData>{item.tweetString}</TableData>
+        <TableData>{`${diffInHours} hrs ago`}</TableData>
+      </TableRow>
+    );
+  })}
+</tbody>
         </Table>
       </Box3>
       <Box4>
