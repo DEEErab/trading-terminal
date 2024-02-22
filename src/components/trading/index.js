@@ -28,10 +28,43 @@ const OriginalTable = ({ onDataClick }) => {
     setData(sortedData);
   };
 
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' for ascending, 'desc' for descending
+
   const handleTime = () => {
-    const sortedData = [...data].sort((a, b) => a.earliestTimeDetection - b.earliestTimeDetection);
-    setData(sortedData);
+      const sortedData = [...data].sort((a, b) => {
+          const timeA = convertToMinutes(a.earliestTimeDetection);
+          const timeB = convertToMinutes(b.earliestTimeDetection);
+          return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      });
+  
+      setData(sortedData);
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sorting order
   };
+
+  const handleTime2 = () => {
+    const sortedData = [...data].sort((a, b) => {
+        const timeA = convertToMinutes(a.latestTimeDetection);
+        const timeB = convertToMinutes(b.latestTimeDetection);
+        return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+    });
+
+    setData(sortedData);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); // Toggle sorting order
+};
+
+const convertToMinutes = (time) => {
+    const parts = time.split(' ');
+    let totalMinutes = 0;
+    if (parts.length === 2) {
+        const hours = parseInt(parts[0]);
+        const minutes = parseInt(parts[1]);
+        totalMinutes = hours * 60 + minutes;
+    } else if (parts.length === 1 && parts[0].includes('min')) {
+        totalMinutes = parseInt(parts[0]);
+    }
+    return totalMinutes;
+};
+
   const [data, setData] = useState(tokenRankData);
 
     return(
@@ -40,16 +73,18 @@ const OriginalTable = ({ onDataClick }) => {
       <TableRow>
         <TableHeader>Account</TableHeader>
         <TableHeader>Token</TableHeader>
-        <TableHeader onClick={() => handleTime()}>Time</TableHeader>
+        <TableHeader onClick={() => handleTime()}>Newest Time</TableHeader>
+        <TableHeader onClick={() => handleTime2()}>Oldest Time</TableHeader>
         <TableHeader onClick={() => handleSort()}>Weight</TableHeader>
       </TableRow>
     </thead>
     <tbody>
       {data.map(item => (
-        <TableRow key={item.tokenName} onClick={() => onDataClick(item)}>
+        <TableRow key={item.tweetToken} onClick={() => onDataClick(item)}>
         <TableData>{item.totalMentioned}</TableData>
-        <TableData>${item.tokenName}</TableData>
-        <TableData>{item.earliestTimeDetection}/oldest hrs ago</TableData>
+        <TableData>${item.tweetToken}</TableData>
+        <TableData>{item.earliestTimeDetection}</TableData>
+        <TableData>{item.latestTimeDetection}</TableData>
         <TableData>{item.tokenWeight}</TableData>
 
         </TableRow>
@@ -89,7 +124,6 @@ const NewTable = ({ data, onClose }) => {
     <thead>
       <TableRow>
         <TableHeader>CA</TableHeader>
-        {/* <TableHeader>Age</TableHeader> */}
         <TableHeader>Chain</TableHeader>
         <TableHeader >Volume</TableHeader> 
         <TableHeader >Liquidity</TableHeader> {/*add sorting for this highest to lowest */}
@@ -134,9 +168,10 @@ const Trading = () => {
 
   const requestTokenRanking = async () => {
       const tokenData = await axios.get(API_URL + "tokenranking");
+      console.log("tokendata",tokenData.data)
       const processedTokenData = processArray(tokenData.data);
       
-      console.log(processedTokenData)
+      
       setTokenRank(processedTokenData);
       setLoading(false);
   }
@@ -144,14 +179,36 @@ const Trading = () => {
   const processArray = async (array) => {
     const currentTime = new Date().getTime();
 
-    for(let i = 0; i < array.length; i++) {
-      const tweetTimeDate = new Date(array[i].earliestTimeDetection).getTime();
-      const timeDifferenceHours = ((currentTime - tweetTimeDate) / (1000 * 60 * 60)).toFixed(2);
-      array[i].earliestTimeDetection = timeDifferenceHours; 
-
-      array[i].tokenName = array[i].tokenName.toUpperCase();
+    for (let i = 0; i < array.length; i++) {
+      const tweetTimeDateEarliest = new Date(array[i].earliestTimeDetection).getTime();
+      const tweetTimeDateLatest = new Date(array[i].latestTimeDetection).getTime();
+  
+      const timeDifferenceMinutesEarliest = ((currentTime - tweetTimeDateEarliest) / (1000 * 60)).toFixed(0);
+      const timeDifferenceMinutesLatest = ((currentTime - tweetTimeDateLatest) / (1000 * 60)).toFixed(0);
+  
+      let formattedTimeEarliest = '';
+      let formattedTimeLatest = '';
+  
+      if (timeDifferenceMinutesEarliest < 60) {
+          formattedTimeEarliest = `${timeDifferenceMinutesEarliest}min`;
+      } else {
+          const hours = Math.floor(timeDifferenceMinutesEarliest / 60);
+          const minutes = timeDifferenceMinutesEarliest % 60;
+          formattedTimeEarliest = `${hours}hr ${minutes}min`;
+      }
+  
+      if (timeDifferenceMinutesLatest < 60) {
+          formattedTimeLatest = `${timeDifferenceMinutesLatest}min`;
+      } else {
+          const hours = Math.floor(timeDifferenceMinutesLatest / 60);
+          const minutes = timeDifferenceMinutesLatest % 60;
+          formattedTimeLatest = `${hours}hr ${minutes}min`;
+      }
+  
+      array[i].earliestTimeDetection = formattedTimeEarliest;
+      array[i].latestTimeDetection = formattedTimeLatest;
     }
-
+    console.log("array", array)
     return array;
   }
 
@@ -161,10 +218,13 @@ const Trading = () => {
       
       //tokenPairData = tokenPairData.filter((item) => (item.chainId == "solana" || item.chainId == "ethereum") && item.baseToken.symbol === token);
       tokenPairData = tokenPairData.filter((item) => 
+      
+    
       ((item.chainId == "solana" || item.chainId == "ethereum") && 
-      (item.baseToken.symbol === token || item.baseToken.symbol.startsWith("$" + token))));
+      (item.baseToken.symbol.toLowerCase() === token.toLowerCase() || item.baseToken.symbol.toLowerCase().startsWith("$" + token.toLowerCase()))));
     
-    
+      console.log("data",tokenPairData)
+
       
       const currentTime = new Date().getTime();
 
@@ -177,7 +237,7 @@ const Trading = () => {
          console.log('after: ', tokenPairData[i].pairCreatedAt)
       }
 
-      console.log("data",tokenPairData)
+      
       return tokenPairData
   }
 
@@ -187,7 +247,7 @@ const Trading = () => {
       { column1: rowData.id, column2: rowData.name, column3: rowData.age, column4: 'Data 4', column5: 'Data 5' },
       // Add more rows as needed
     ];
-    const tokenData = await requestTokenDEXScreener(rowData.tokenName);
+    const tokenData = await requestTokenDEXScreener(rowData.tweetToken);
     setNewTableData(tokenData);
     setShowOriginalTable(false);
   };

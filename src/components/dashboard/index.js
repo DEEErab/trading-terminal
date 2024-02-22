@@ -68,6 +68,12 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
    getTweetsTokenByData(token);
 
   }, [token])
+
+  const sortedTweets = tweets.sort((a, b) => {
+    const timeA = new Date(a.tweetTime);
+    const timeB = new Date(b.tweetTime);
+    return timeB - timeA;
+  });
   
 
   return (
@@ -117,18 +123,34 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
             </TableRow>
           </thead>
           <tbody>
-  {tweets.map(item => {
-    const tweetTime = new Date(item.tweetTime);
-    const diffInMilliseconds = Date.now() - tweetTime.getTime();
-    const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
-    return (
-      <TableRow key={item.acc}>
-        <TableData>{item.tweetWho}</TableData>
-        <TableData>{item.tweetString}</TableData>
-        <TableData>{`${diffInHours} hrs ago`}</TableData>
-      </TableRow>
-    );
-  })}
+          {sortedTweets.map(item => {
+  const tweetTime = new Date(item.tweetTime);
+  const currentTime = new Date();
+  const hours = tweetTime.getHours();
+  const minutes = tweetTime.getMinutes();
+  const formattedTime = `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+
+  const diffMs = currentTime - tweetTime;
+  const diffMins = Math.round(diffMs / 60000); // Convert difference to minutes
+  const hoursAgo = Math.floor(diffMins / 60);
+  const minutesAgo = diffMins % 60;
+  const agoString = hoursAgo > 0 ? `${hoursAgo}hr` : '';
+  const minutesString = minutesAgo > 0 ? ` ${minutesAgo}min` : '';
+  const ago = hoursAgo > 0 || minutesAgo > 0 ? `  ${agoString}${minutesString} ` : '';
+
+  return (
+    <TableRow key={item.acc}>
+      <TableData>{item.tweetWho}</TableData>
+      <TableData>{item.tweetString}</TableData>
+      <TableData style={{ whiteSpace: 'nowrap' }}>
+    <div>{formattedTime}</div>
+    <div>{ago}</div>
+  </TableData>
+    </TableRow>
+  );
+})}
+
+
 </tbody>
         </Table>
       </Box3>
@@ -144,33 +166,15 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
 
 export default Dashboard;
 
-
-         {/* <tbody>
-            <TableRow>
-              <TableData>
-                <TweetLink href="link">0xretard</TweetLink>
-              </TableData>
-              <TableData>
-                <TweetLink href="link">link</TweetLink>
-              </TableData>
-              <TableData>4:20</TableData>
-            </TableRow>
-            <TableRow>
-              <TableData>
-                <TweetLink href="link">0xretard</TweetLink>
-              </TableData>
-              <TableData>
-                <TweetLink href="link">link</TweetLink>
-              </TableData>
-              <TableData>4:20</TableData>
-            </TableRow>
-            <TableRow>
-              <TableData>
-                <TweetLink href="link">0xretard</TweetLink>
-              </TableData>
-              <TableData>
-                <TweetLink href="link">link</TweetLink>
-              </TableData>
-              <TableData>4:20</TableData>
-            </TableRow>
-          </tbody> */}
+// {tweets.map(item => {
+//   const tweetTime = new Date(item.tweetTime);
+//   const diffInMilliseconds = Date.now() - tweetTime.getTime();
+//   const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
+//   return (
+//     <TableRow key={item.acc}>
+//       <TableData>{item.tweetWho}</TableData>
+//       <TableData>{item.tweetString}</TableData>
+//       <TableData>{`${diffInHours} hrs ago`}</TableData>
+//     </TableRow>
+//   );
+// })}
