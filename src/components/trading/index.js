@@ -17,11 +17,38 @@ const API_URL = "http://localhost:8080/";
 const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
 
 const tokenRankAtom = atom([]);
+const hourAtom = atom();
 
 
-const OriginalTable = ({ onDataClick }) => {
+const OriginalTable = ({ onDataClick, selectedInterval, handleIntervalChange, processArray }) => {
 
   const tokenRankData = useAtomValue(tokenRankAtom);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch data based on the new interval
+      const newData = await fetchNewData(selectedInterval);
+      setData(newData);
+    };
+
+    fetchData();
+  }, [selectedInterval]);
+
+  const fetchNewData = async (interval) => {
+    let url = API_URL + "tokenranking";
+    if (interval !== "all") {
+      url += "/" + interval;
+    }
+
+    try {
+      const tokenData = await axios.get(url);
+      const processedTokenData = processArray(tokenData.data);
+      return processedTokenData;
+    } catch (error) {
+      console.error("Error fetching token data:", error);
+      return [];
+    }
+  };
   
   const handleSort = () => {
     const sortedData = [...data].sort((a, b) => b.tokenWeight - a.tokenWeight  );
@@ -67,7 +94,22 @@ const convertToMinutes = (time) => {
 
   const [data, setData] = useState(tokenRankData);
 
+  // const [selectedInterval, setSelectedInterval] = useState('all');
+  // const handleIntervalChange = (event) => {
+  //   const interval = event.target.value;
+  //   setSelectedInterval(interval);
+  //   requestTokenRanking(interval === "all" ? "" : interval);
+  // };
+
     return(
+      <div>
+        <select value={selectedInterval} onChange={handleIntervalChange}>
+        <option value="all">All</option>
+        <option value="1hr">1hr</option>
+        <option value="6hr">6hr</option>
+        <option value="12hr">12hr</option>
+        <option value="24hr">24hr</option>
+      </select>
     <Table>
     <thead>
       <TableRow>
@@ -76,6 +118,7 @@ const convertToMinutes = (time) => {
         <TableHeader onClick={() => handleTime()}>Newest Time</TableHeader>
         <TableHeader onClick={() => handleTime2()}>Oldest Time</TableHeader>
         <TableHeader onClick={() => handleSort()}>Weight</TableHeader>
+        <TableHeader></TableHeader>
       </TableRow>
     </thead>
     <tbody>
@@ -91,6 +134,7 @@ const convertToMinutes = (time) => {
       ))}
     </tbody>
   </Table>
+  </div>
     )
 };
 
@@ -157,6 +201,7 @@ const NewTable = ({ data, onClose }) => {
 };
 
 const Trading = () => {
+  const [selectedInterval, setSelectedInterval] = useState('all');
   const [showOriginalTable, setShowOriginalTable] = useState(true);
   const [newTableData, setNewTableData] = useState([]);
   const handleLinkClick = () => {
@@ -166,15 +211,35 @@ const Trading = () => {
   const [tokenRank, setTokenRank] = useAtom(tokenRankAtom);
   const [loading, setLoading] = useState(true);
 
-  const requestTokenRanking = async () => {
-      const tokenData = await axios.get(API_URL + "tokenranking");
-      console.log("tokendata",tokenData.data)
+  
+  const handleIntervalChange = (event) => {
+    const interval = event.target.value;
+    console.log("interval", interval);
+    setSelectedInterval(interval);
+    requestTokenRanking(interval === "all" ? "" : interval);
+  };
+  
+  
+
+  const requestTokenRanking = async (interval) => {
+    let url = API_URL + "tokenranking";
+    if (interval !== "all") {
+      url += "/" + interval;
+    }
+    console.log("url", url)
+    try {
+      const tokenData = await axios.get(url);
+      console.log("tokendata", tokenData.data);
       const processedTokenData = processArray(tokenData.data);
-      
-      
+  
       setTokenRank(processedTokenData);
       setLoading(false);
-  }
+    } catch (error) {
+      console.error("Error fetching token data:", error);
+    }
+  };
+
+
 
   const processArray = async (array) => {
     const currentTime = new Date().getTime();
@@ -258,8 +323,9 @@ const Trading = () => {
 
 
   useEffect(() => {
-    requestTokenRanking();
-  }, [])
+    requestTokenRanking("all"); // Fetch all tokens initially
+  }, []);
+  
     
 
   return (
@@ -279,7 +345,12 @@ const Trading = () => {
         {loading 
            ?  <div>Loading...</div>
            :  showOriginalTable  ? (
-            <OriginalTable onDataClick={handleDataClick}  />
+            <OriginalTable
+                  onDataClick={handleDataClick}
+                  selectedInterval={selectedInterval}
+                  handleIntervalChange={handleIntervalChange}
+                  processArray={processArray}
+                />
           ) : (
             <NewTable data={newTableData} onClose={handleCloseNewTable} />
           )

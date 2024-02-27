@@ -126,29 +126,34 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
           {sortedTweets.map(item => {
   const tweetTime = new Date(item.tweetTime);
   const currentTime = new Date();
+  const month = tweetTime.getMonth() + 1;
+  const day = tweetTime.getDate();
   const hours = tweetTime.getHours();
   const minutes = tweetTime.getMinutes();
-  const formattedTime = `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+  const formattedTime = `${month}/${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
 
   const diffMs = currentTime - tweetTime;
   const diffMins = Math.round(diffMs / 60000); // Convert difference to minutes
-  const hoursAgo = Math.floor(diffMins / 60);
+  const daysAgo = Math.floor(diffMins / (60 * 24));
+  const hoursAgo = Math.floor((diffMins % (60 * 24)) / 60);
   const minutesAgo = diffMins % 60;
-  const agoString = hoursAgo > 0 ? `${hoursAgo}hr` : '';
-  const minutesString = minutesAgo > 0 ? ` ${minutesAgo}min` : '';
-  const ago = hoursAgo > 0 || minutesAgo > 0 ? `  ${agoString}${minutesString} ` : '';
+  const daysString = daysAgo > 0 ? `${daysAgo}d ` : '';
+  const hoursString = hoursAgo > 0 ? `${hoursAgo}hr ` : '';
+  const minutesString = minutesAgo > 0 ? `${minutesAgo}min` : '';
+  const ago = daysString + (daysAgo > 0 || hoursAgo > 0 ? hoursString : '') + minutesString;
 
   return (
     <TableRow key={item.acc}>
       <TableData>{item.tweetWho}</TableData>
       <TableData>{item.tweetString}</TableData>
       <TableData style={{ whiteSpace: 'nowrap' }}>
-    <div>{formattedTime}</div>
-    <div>{ago}</div>
-  </TableData>
+        <div>{formattedTime}</div>
+        <div>{ago}</div>
+      </TableData>
     </TableRow>
   );
 })}
+
 
 
 </tbody>
@@ -165,16 +170,3 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
 
 
 export default Dashboard;
-
-// {tweets.map(item => {
-//   const tweetTime = new Date(item.tweetTime);
-//   const diffInMilliseconds = Date.now() - tweetTime.getTime();
-//   const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
-//   return (
-//     <TableRow key={item.acc}>
-//       <TableData>{item.tweetWho}</TableData>
-//       <TableData>{item.tweetString}</TableData>
-//       <TableData>{`${diffInHours} hrs ago`}</TableData>
-//     </TableRow>
-//   );
-// })}
