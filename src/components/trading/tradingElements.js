@@ -34,8 +34,8 @@ export const Box1 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: teal;
+  border-color: white;
+  background-color: #acacac;
 `;
 
 export const Box2 = styled.div`
@@ -53,12 +53,12 @@ export const Box2 = styled.div`
   padding: 10px;
   box-sizing: border-box;
   border-style: solid;
-  border-color: red;
-  background-color: teal;
+  border-color: white;
+  background-color: grey;
 `;
 
 export const Box3 = styled.div`
-  background-color: teal;
+  background-color: #acacac;
   border: 1px solid white;
   padding: 20px;
   box-sizing: border-box;
@@ -83,6 +83,7 @@ export const TableRow = styled.tr`
 export const TableHeader = styled.th`
   text-align: left;
   padding: 12px;
+  font-weight: 50px;
 `;
 
 export const TableData = styled.td`
