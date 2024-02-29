@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import {atom, useAtom, useAtomValue } from 'jotai';
 
-const API_URL = "http://localhost:8080/";
+const API_URL = "https://c5cf-75-18-109-104.ngrok-free.app/";
 const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
 
 const tokenRankAtom = atom([]);
@@ -224,20 +224,25 @@ const Trading = () => {
   const requestTokenRanking = async (interval) => {
     let url = API_URL + "tokenranking";
     if (interval !== "all") {
-      url += "/" + interval;
+        url += "/" + interval;
     }
-    console.log("url", url)
+    console.log("url", url);
     try {
-      const tokenData = await axios.get(url);
-      console.log("tokendata", tokenData.data);
-      const processedTokenData = processArray(tokenData.data);
-  
-      setTokenRank(processedTokenData);
-      setLoading(false);
+        const tokenData = await axios.get(url, {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        });
+        console.log("tokendata", tokenData.data);
+        const processedTokenData = processArray(tokenData.data);
+
+        setTokenRank(processedTokenData);
+        setLoading(false);
     } catch (error) {
-      console.error("Error fetching token data:", error);
+        console.error("Error fetching token data:", error);
     }
-  };
+};
+
 
 
 
@@ -269,7 +274,7 @@ const Trading = () => {
           const minutes = timeDifferenceMinutesLatest % 60;
           formattedTimeLatest = `${hours}hr ${minutes}min`;
       }
-  
+      
       array[i].earliestTimeDetection = formattedTimeEarliest;
       array[i].latestTimeDetection = formattedTimeLatest;
     }
@@ -285,7 +290,7 @@ const Trading = () => {
       tokenPairData = tokenPairData.filter((item) => 
       
     
-      ((item.chainId == "solana" || item.chainId == "ethereum") && 
+      ((item.chainId == "solana" || item.chainId == "ethereum") && ((item.volume.h24 >= 50000)) &&
       (item.baseToken.symbol.toLowerCase() === token.toLowerCase() || item.baseToken.symbol.toLowerCase().startsWith("$" + token.toLowerCase()))));
     
       console.log("data",tokenPairData)
@@ -330,6 +335,7 @@ const Trading = () => {
 
   return (
     <Container>
+      
       <a href='http://localhost:3000/dashboard' onClick={handleLinkClick}>
       <Box1>
         <h2>Dashboard</h2>

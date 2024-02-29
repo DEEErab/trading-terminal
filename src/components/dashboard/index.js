@@ -19,7 +19,7 @@ import {
 } from "./dashboardElements.js";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/";
+const API_URL = "https://c5cf-75-18-109-104.ngrok-free.app/";
 const DEX_SCREENER_URL = "https://api.dexscreener.com/latest/dex/search?q="
 
 const Dashboard = () => {
@@ -57,7 +57,11 @@ const url = `https://dexscreener.com/${chainId}/${newPairAddress}`;
      const tokenL = token.toLowerCase();
      const tweets = await axios.post(API_URL + "tweetsbytoken", {
       token: tokenL
-     })
+  }, {
+      headers: {
+          'ngrok-skip-browser-warning': 'true'
+      }
+  });
 
      console.log(tweets.data)
      setTweets(tweets.data);
